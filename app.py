@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, redirect, url_for
 
 app = Flask(__name__)
 
@@ -14,6 +14,10 @@ def serve_static(path):
     print(path)
     return send_from_directory('frontend/dist', path)
 
+@app.route('/')
+def index():
+    return redirect('index.html')
+
 
 if __name__ == '__main__':
-    app.run(default_url='/index.html')
+    app.run()
