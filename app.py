@@ -4,9 +4,9 @@ app = Flask(__name__)
 
 
 # 定义路由，发送Vue项目的静态文件
-# @app.route('/')
+# @app.route('/index.html')
 # def index():
-#     return render_template('App.vue')
+#     return render_template('')
 
 
 @app.route('/<path:path>')
@@ -16,4 +16,4 @@ def serve_static(path):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(default_url='/index.html')
