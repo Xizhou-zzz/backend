@@ -3,11 +3,12 @@ from controller import DBcontroller
 app = Flask(__name__)
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
+    print("收到登录请求")
     username = request.json['username']
     password = request.json['password']
-
+    print(username, password)
     # 进行数据验证，这里仅作示例直接返回结果
     if username == 'admin' and password == 'password':
         result = 'success'
