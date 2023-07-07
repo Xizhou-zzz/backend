@@ -6,22 +6,11 @@ import pymysql
 
 class Database:
     def __init__(self):
-        # 此处将数据库自我信息设定使用config文件保存，修改时直接修改“config.ini”文件内容
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-
-        db_config = config['database']
-
-        self.host = db_config['host']
-        self.username = db_config['username']
-        self.password = db_config['password']
-        self.database = db_config['database']
-
         self.conn = pymysql.connect(
-            host=self.host,
-            user=self.username,
-            password=self.password,
-            database=self.database
+            host="localhost",
+            user="root",
+            password="20020830wyb2618",
+            database="testbike"
         )
         self.cursor = self.conn.cursor()
 
