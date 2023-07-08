@@ -32,6 +32,28 @@ def login():
     return jsonify({'result': result})
 
 
+@app.route('/api/Register', methods=['POST'])
+def register():
+    print("收到注册请求")
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    db = DBcontroller.Database()
+    df = db.select('usermessage')   # 调用查询方法获取数据（返回一个DataFrame）
+    search_value = username
+    mask = df['user_name'].isin([search_value])
+    if mask.any():
+        # 获取目标行的密码
+        print("用户名已存在")
+        result = 'EXIST'
+    else:
+        print("未找到该用户名")
+        db.insert('usermessage', (username, password, 0))
+        result = 'NOTFOUND'
+
+    return jsonify({'result': result})
+
+
 # @app.route('/Visualize', methods=['GET'])
 # def visualize():
 #     db = DBcontroller.Database()
