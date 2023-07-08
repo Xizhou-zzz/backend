@@ -1,18 +1,23 @@
 from flask import Flask, render_template, send_from_directory, redirect, abort, jsonify, request
+from flask_cors import CORS
 from controller import DBcontroller
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/api/login', methods=['POST'])
 def login():
     print("收到登录请求")
-    username = request.json['username']
-    password = request.json['password']
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
     print(username, password)
     # 进行数据验证，这里仅作示例直接返回结果
     if username == 'admin' and password == 'password':
+        print("允许登录")
         result = 'success'
     else:
+        print("拒绝登录")
         result = 'failure'
 
     return jsonify({'result': result})
