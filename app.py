@@ -11,25 +11,34 @@ def login():
     data = request.get_json()
     username = data['username']
     password = data['password']
-    print(username, password)
-    # 进行数据验证，这里仅作示例直接返回结果
-    if username == 'admin' and password == 'password':
-        print("允许登录")
-        result = 'success'
+    db = DBcontroller.Database()
+    df = db.select('usermessage')   # 调用查询方法获取数据（返回一个DataFrame）
+    search_value = username
+    mask = df['user_name'].isin([search_value])
+    if mask.any():
+        # 获取目标行的密码
+        password_saved = df.loc[mask, 'user_password'].values[0]
+        print(f"找到用户名为'{search_value}'，对应的密码为'{password_saved}'")
+        if password == password_saved:
+            print("允许登录")
+            result = 'success'
+        else:
+            print("拒绝登录")
+            result = 'failure'
     else:
-        print("拒绝登录")
-        result = 'failure'
+        print("未找到该用户名")
+        result = 'NOTFOUND'
 
     return jsonify({'result': result})
 
 
-@app.route('/Visualize', methods=['GET'])
-def visualize():
-    db = DBcontroller.Database()
-    df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
-    new_df = df.loc[:, ['start_location_x', 'start_location_y']]
-    data = new_df.to_dict(orient='records')   # 转换为字典格式
-    return jsonify({'data': data})
+# @app.route('/Visualize', methods=['GET'])
+# def visualize():
+#     db = DBcontroller.Database()
+#     df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
+#     new_df = df.loc[:, ['start_location_x', 'start_location_y']]
+#     data = new_df.to_dict(orient='records')   # 转换为字典格式
+#     return jsonify({'data': data})
 
 
 if __name__ == '__main__':
