@@ -46,17 +46,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 # @app.route('/<path:path>')
 # def serve_static(path):
 #     print(path)
