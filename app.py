@@ -1,7 +1,7 @@
 from flask import Flask, render_template, send_from_directory, redirect, abort, jsonify, request
 from flask_cors import CORS
 from controller import DBcontroller
-import json
+import pandas as pd
 app = Flask(__name__)
 CORS(app)
 
@@ -59,12 +59,29 @@ def register():
 def visualone():
     print("收到数据请求")
     db = DBcontroller.Database()
-    df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
-    new_df = df.loc[:, ['orderid', 'userid']]
-    new_df = new_df.rename(columns={'orderid': 'name', 'userid': 'value'})
-    data = new_df.to_dict(orient='records')   # 转换为字典格式
-    print(new_df)
-    print(data)
+    df = db.select('bikemessage')   # 调用查询方法获取数据（返回一个DataFrame）
+    # new_df = new_df.rename(columns={'orderid': 'name', 'userid': 'value'})
+    df['start_time'] = pd.to_datetime(df['start_time'])
+    df['weekday'] = df['start_time'].dt.weekday
+    # 按星期几分组并计算每个组的数量
+    weekday_count = df.groupby('weekday').size().reset_index(name='count')
+    # 将结果保存为DataFrame数据流
+    weekday_count_stream = weekday_count.to_json(orient='records')
+    weekday_mapping = {
+        0: 'Mon',
+        1: 'Tue',
+        2: 'Wed',
+        3: 'Thu',
+        4: 'Fri',
+        5: 'Sat',
+        6: 'Sun'
+    }
+    # 将 'weekday' 列的值替换为星期的缩写
+    weekday_count['weekday'] = weekday_count['weekday'].replace(weekday_mapping)
+    # 打印结果
+    print(weekday_count)
+    weekday_count = weekday_count.rename(columns={'weekday': 'name', 'count': 'value'})
+    data = weekday_count.to_dict(orient='records')   # 转换为字典格式
     return jsonify(data)
 
 
