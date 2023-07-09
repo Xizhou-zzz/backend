@@ -54,13 +54,16 @@ def register():
     return jsonify({'result': result})
 
 
-# @app.route('/Visualize', methods=['GET'])
-# def visualize():
-#     db = DBcontroller.Database()
-#     df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
-#     new_df = df.loc[:, ['start_location_x', 'start_location_y']]
-#     data = new_df.to_dict(orient='records')   # 转换为字典格式
-#     return jsonify({'data': data})
+@app.route('/api/Visualize', methods=['GET'])
+def visualize():
+    print("收到数据请求")
+    db = DBcontroller.Database()
+    df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
+    new_df = df.loc[:, ['start_location_x', 'start_location_y']]
+    data = new_df.to_dict(orient='records')   # 转换为字典格式
+    print(new_df)
+    print(data)
+    return jsonify({'data': data})
 
 
 if __name__ == '__main__':
