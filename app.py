@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_from_directory, redirect, abort, jsonify, request
 from flask_cors import CORS
 from controller import DBcontroller
+import json
 app = Flask(__name__)
 CORS(app)
 
@@ -54,16 +55,17 @@ def register():
     return jsonify({'result': result})
 
 
-@app.route('/api/Visualize', methods=['GET'])
-def visualize():
+@app.route('/api/Visualone', methods=['GET'])
+def visualone():
     print("收到数据请求")
     db = DBcontroller.Database()
     df = db.select('bikemessage', condition='bikeid = 288841')   # 调用查询方法获取数据（返回一个DataFrame）
-    new_df = df.loc[:, ['start_location_x', 'start_location_y']]
+    new_df = df.loc[:, ['orderid', 'userid']]
+    new_df = new_df.rename(columns={'orderid': 'name', 'userid': 'value'})
     data = new_df.to_dict(orient='records')   # 转换为字典格式
     print(new_df)
     print(data)
-    return jsonify({'data': data})
+    return jsonify(data)
 
 
 if __name__ == '__main__':
