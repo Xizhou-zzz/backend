@@ -79,9 +79,38 @@ def visualone():
     # 将 'weekday' 列的值替换为星期的缩写
     weekday_count['weekday'] = weekday_count['weekday'].replace(weekday_mapping)
     # 打印结果
-    print(weekday_count)
     weekday_count = weekday_count.rename(columns={'weekday': 'name', 'count': 'value'})
     data = weekday_count.to_dict(orient='records')   # 转换为字典格式
+    print(data)
+    print("数据请求处理完毕")
+    return jsonify(data)
+
+
+@app.route('/api/Visualtwo', methods=['GET'])
+def visualtwo():
+    print("收到数据请求")
+    db = DBcontroller.Database()
+    df = db.select('bikemessage')   # 调用查询方法获取数据（返回一个DataFrame）
+    df['start_time'] = pd.to_datetime(df['start_time'])
+    df['hour'] = df['start_time'].dt.hour
+    # 创建时间段的标签
+    time_labels = ['0:00-0:59', '1:00-1:59', '2:00-2:59', '3:00-3:59',
+                   '4:00-4:59', '5:00-5:59', '6:00-6:59', '7:00-7:59',
+                   '8:00-8:59', '9:00-9:59', '10:00-10:59', '11:00-11:59',
+                   '12:00-12:59', '13:00-13:59', '14:00-14:59', '15:00-15:59',
+                   '16:00-16:59', '17:00-17:59', '18:00-18:59', '19:00-19:59',
+                   '20:00-20:59', '21:00-21:59', '22:00-22:59', '23:00-23:59']
+
+    # 使用cut()函数对时间进行分段，并计算每个时段的数量
+    time_count = pd.cut(df['hour'],
+                        bins=range(0, 25),
+                        labels=time_labels,
+                        include_lowest=True).value_counts().sort_index().reset_index()
+    time_count.columns = ['time_range', 'count']
+    time_count = time_count.rename(columns={'time_range': 'name', 'count': 'value'})
+    # 将结果保存为DataFrame数据流
+    data = time_count.to_dict(orient='records')   # 转换为字典格式
+    print("数据请求处理完毕")
     return jsonify(data)
 
 

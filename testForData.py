@@ -5,28 +5,22 @@ db = DBcontroller.Database()
 df = db.select('bikemessage', condition='userid < 10000 and userid > 9900')   # 调用查询方法获取数据（返回一个DataFrame）
 # new_df = new_df.rename(columns={'orderid': 'name', 'userid': 'value'})
 df['start_time'] = pd.to_datetime(df['start_time'])
-df['weekday'] = df['start_time'].dt.weekday
-# 按星期几分组并计算每个组的数量
-weekday_count = df.groupby('weekday').size().reset_index(name='count')
+df['hour'] = df['start_time'].dt.hour
+# 创建时间段的标签
+time_labels = ['0:00-0:59', '1:00-1:59', '2:00-2:59', '3:00-3:59', '4:00-4:59', '5:00-5:59', '6:00-6:59', '7:00-7:59',
+               '8:00-8:59', '9:00-9:59', '10:00-10:59', '11:00-11:59', '12:00-12:59', '13:00-13:59', '14:00-14:59',
+               '15:00-15:59', '16:00-16:59', '17:00-17:59', '18:00-18:59', '19:00-19:59', '20:00-20:59', '21:00-21:59',
+               '22:00-22:59', '23:00-23:59']
+
+# 使用cut()函数对时间进行分段，并计算每个时段的数量
+time_count = pd.cut(df['hour'], bins=range(0, 25), labels=time_labels, include_lowest=True).value_counts().sort_index().reset_index()
+time_count.columns = ['time_range', 'count']
 # 将结果保存为DataFrame数据流
-weekday_count_stream = weekday_count.to_json(orient='records')
-weekday_mapping = {
-    0: 'Mon',
-    1: 'Tue',
-    2: 'Wed',
-    3: 'Thu',
-    4: 'Fri',
-    5: 'Sat',
-    6: 'Sun'
-}
-# 将 'weekday' 列的值替换为星期的缩写
-weekday_count['weekday'] = weekday_count['weekday'].replace(weekday_mapping)
+time_count_stream = time_count.to_json(orient='records')
+
 # 打印结果
-print(weekday_count)
-print(weekday_count_stream)
+print(time_count)
 # print(data)
-
-
 
 
 
