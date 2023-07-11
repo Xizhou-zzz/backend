@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, redirect, abort, jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from controller import DBcontroller
 import pandas as pd
