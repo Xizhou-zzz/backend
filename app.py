@@ -135,30 +135,29 @@ def delete():
     return jsonify(result)
 
 
-@app.route('/api/insert', methods=['POST'])
+@app.route('/api/addRow', methods=['POST'])
 def insert():
     print("收到添加用户数据请求")
     data_from_frontend = request.get_json()
-    username = data_from_frontend['username']
+    username = data_from_frontend['name']
     password = data_from_frontend['password']
-    typology = data_from_frontend['typology']
-    print(type(typology))
-    # db.insert('usermessage', f"user_name='{username}',user_password='{password}',user_class={typology}")   # 取得dataframe数据
+    typology = data_from_frontend['type']
+    db.insert('usermessage', (username, password, int(typology)))   # 取得dataframe数据
     return jsonify(username)
 
 
-@app.route('/api/update', methods=['POST'])
-def update():
-    print("收到更新用户数据请求")
-    data_from_frontend = request.get_json()
-    username = data_from_frontend['username']
-    password = data_from_frontend['password']
-    typology = data_from_frontend['typology']
-    exits = 0;
-    exits = db.update('usermessage', 'user_name', f'{username}', f"user_name='{username}'")   # 取得dataframe数据
-    db.update('usermessage', 'user_password', f'{password}', f"user_name='{username}'")
-    db.update('usermessage', 'user_class', f'{typology}', f"user_name='{username}'")
-    return jsonify(username)
+# @app.route('/api/update', methods=['POST'])
+# def update():
+#     print("收到更新用户数据请求")
+#     data_from_frontend = request.get_json()
+#     username = data_from_frontend['username']
+#     password = data_from_frontend['password']
+#     typology = data_from_frontend['typology']
+#     exits = 0
+#     exits = db.update('usermessage', 'user_name', f'{username}', f"user_name='{username}'")   # 取得dataframe数据
+#     db.update('usermessage', 'user_password', f'{password}', f"user_name='{username}'")
+#     db.update('usermessage', 'user_class', f'{typology}', f"user_name='{username}'")
+#     return jsonify(username)
 
 
 if __name__ == '__main__':
