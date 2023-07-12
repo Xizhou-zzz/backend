@@ -142,22 +142,45 @@ def insert():
     username = data_from_frontend['name']
     password = data_from_frontend['password']
     typology = data_from_frontend['type']
-    db.insert('usermessage', (username, password, int(typology)))   # 取得dataframe数据
-    return jsonify(username)
+    result = 'success'
+    try:
+        db.insert('usermessage', (username, password, int(typology)))
+    except Exception as e:  # 捕获到异常，说明出现了主键冲突错误
+        if 'PRIMARY' in str(e):
+            # 处理主键冲突的情况
+            print(f"插入失败，用户名 '{username}' 已存在。")
+            result = 'exist'
+        else:
+            # 处理其他异常
+            print("插入失败，发生未知错误:", e)
+            result = 'failure'
+    print(result)
+    return jsonify(result)
 
 
-# @app.route('/api/update', methods=['POST'])
-# def update():
-#     print("收到更新用户数据请求")
-#     data_from_frontend = request.get_json()
-#     username = data_from_frontend['username']
-#     password = data_from_frontend['password']
-#     typology = data_from_frontend['typology']
-#     exits = 0
-#     exits = db.update('usermessage', 'user_name', f'{username}', f"user_name='{username}'")   # 取得dataframe数据
-#     db.update('usermessage', 'user_password', f'{password}', f"user_name='{username}'")
-#     db.update('usermessage', 'user_class', f'{typology}', f"user_name='{username}'")
-#     return jsonify(username)
+@app.route('/api/updateRow', methods=['POST'])
+def update():
+    print("收到更新用户数据请求")
+    data_from_frontend = request.get_json()
+    username = data_from_frontend['name']
+    password = data_from_frontend['password']
+    typology = data_from_frontend['type']
+    result = 'success'
+    try:
+        db.update('usermessage', 'user_name', f'{username}', f"user_name='{username}'")   # 取得dataframe数据
+        db.update('usermessage', 'user_password', f'{password}', f"user_name='{username}'")
+        db.update('usermessage', 'user_class', f'{typology}', f"user_name='{username}'")
+    except Exception as e:  # 捕获到异常，说明出现了主键冲突错误
+        if 'PRIMARY' in str(e):
+            # 处理主键冲突的情况
+            print(f"更改失败，用户名 '{username}' 已存在。")
+            result = 'exist'
+        else:
+            # 处理其他异常
+            print("插入失败，发生未知错误:", e)
+            result = 'failure'
+    print(result)
+    return jsonify(result)
 
 
 if __name__ == '__main__':

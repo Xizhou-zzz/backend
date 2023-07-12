@@ -43,27 +43,28 @@ def create_df(t1, t2, hum, wind_speed, weather_code, is_holiday, is_weekend, sea
                't2': (float(t2) - t2_min) / (t2_max - t2_min),
                'hum': (float(hum) - hum_min) / (hum_max - hum_min),
                'wind_speed': (float(wind_speed) - wind_speed_min) / (wind_speed_max - wind_speed_min),
-               'weather_code': weather_code,
-               'is_holiday': is_holiday,
-               'is_weekend': is_weekend,
-               'season': season,
+               'weather_code': float(weather_code),
+               'is_holiday': float(is_holiday),
+               'is_weekend': float(is_weekend),
+               'season': float(season),
                'hour': (float(hour) - hour_min) / (hour_max - hour_min)}
     df.loc[len(df)] = new_row
     return df
 
-df = create_df('3.0', '2.0', '93.0', '6.0', '3.0', '0.0', '1.0', '3.0', '0.0')
 
+tempDf = create_df('3.0', '2.0', '93.0', '6.0', '3.0', '0.0', '1.0', '3.0', '0.0')
 
 # 调整输入数据的形状
-df = np.reshape(df, (1, 1, 9))
+tempDf = np.array(tempDf)
+tempDf = np.reshape(tempDf, (1, 1, 9))
 
 # 将数据类型转换为float32
-df = df.astype(np.float32)
+tempDf = tempDf.astype(np.float32)
 
-max_val=7860
-min_val=0
+max_val = 7860
+min_val = 0
 # 进行预测
-predictions = model.predict(df, verbose=1)
+predictions = model.predict(tempDf, verbose=1)
 
 predictions = predictions*(max_val-min_val)+min_val
 

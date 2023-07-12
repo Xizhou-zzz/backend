@@ -33,7 +33,6 @@ class Database:
         self.cursor.execute(sql, (value,))
         self.conn.commit()
         print("Record updated successfully.")
-        return 1
 
     def delete(self, table_name, condition):
         # 删除数据
