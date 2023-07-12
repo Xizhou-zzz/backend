@@ -162,14 +162,18 @@ def insert():
 def update():
     print("收到更新用户数据请求")
     data_from_frontend = request.get_json()
+    print(data_from_frontend)
     username = data_from_frontend['name']
     password = data_from_frontend['password']
     typology = data_from_frontend['type']
+    print(username)
+    print(password)
+    print(typology)
     result = 'success'
     try:
-        db.update('usermessage', 'user_name', f'{username}', f"user_name='{username}'")   # 取得dataframe数据
-        db.update('usermessage', 'user_password', f'{password}', f"user_name='{username}'")
-        db.update('usermessage', 'user_class', f'{typology}', f"user_name='{username}'")
+        db.update('usermessage', 'user_name', username, f"user_name='{username}'")
+        db.update('usermessage', 'user_password', password, f"user_name='{username}'")
+        db.update('usermessage', 'user_class', int(typology), f"user_name='{username}'")
     except Exception as e:  # 捕获到异常，说明出现了主键冲突错误
         if 'PRIMARY' in str(e):
             # 处理主键冲突的情况
@@ -177,7 +181,7 @@ def update():
             result = 'exist'
         else:
             # 处理其他异常
-            print("插入失败，发生未知错误:", e)
+            print("更新失败，发生未知错误:", e)
             result = 'failure'
     print(result)
     return jsonify(result)
