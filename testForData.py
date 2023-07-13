@@ -1,10 +1,10 @@
 from controller import DBcontroller
 from LSTM import lstm
 
-data_date = '2015/7/1'
+data_date = '2023-07-01'
 
 db = DBcontroller.Database()
-df = db.select('predict', condition=f'date = { data_date }')
+df = db.select('predict', condition=f"timestamp='{ data_date }' and id = 1")
 
 data_to_draw = lstm.get_predictions(df)
 
