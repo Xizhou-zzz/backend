@@ -2,13 +2,16 @@ from controller import DBcontroller
 from LSTM import lstm
 
 data_date = '2023-07-01'
+pointId = 1
 
 db = DBcontroller.Database()
-df = db.select('predict', condition=f"timestamp='{ data_date }' and id = 1")
+df = db.select('predict', condition=f"timestamp='{ data_date }' and id = { pointId }")
 
 data_to_draw = lstm.get_predictions(df)
+first_row = data_to_draw.iloc[0]
 
-print(data_to_draw)
+
+
 # return jsonify(data_to_draw)
 
 
