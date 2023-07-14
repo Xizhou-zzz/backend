@@ -4,6 +4,7 @@ from controller import DBcontroller
 import pandas as pd
 app = Flask(__name__)
 CORS(app)
+db = DBcontroller.Database()
 
 
 @app.route('/api/login', methods=['POST'])
@@ -12,7 +13,6 @@ def login():
     data = request.get_json()
     username = data['username']
     password = data['password']
-    db = DBcontroller.Database()
     df = db.select('usermessage')   # 调用查询方法获取数据（返回一个DataFrame）
     search_value = username
     mask = df['user_name'].isin([search_value])
@@ -22,7 +22,11 @@ def login():
         print(f"找到用户名为'{search_value}'，对应的密码为'{password_saved}'")
         if password == password_saved:
             print("允许登录")
-            result = 'success'
+            user_class = df.loc[mask, 'user_class'].values[0]
+            if user_class == 1:
+                result = 'admin'
+            else:
+                result = 'success'
         else:
             print("拒绝登录")
             result = 'failure'
@@ -39,7 +43,6 @@ def register():
     data = request.get_json()
     username = data['username']
     password = data['password']
-    db = DBcontroller.Database()
     df = db.select('usermessage')   # 调用查询方法获取数据（返回一个DataFrame）
     search_value = username
     mask = df['user_name'].isin([search_value])
@@ -58,7 +61,6 @@ def register():
 @app.route('/api/Visualone', methods=['GET'])
 def visualone():
     print("收到数据请求")
-    db = DBcontroller.Database()
     df = db.select('bikemessage')   # 调用查询方法获取数据（返回一个DataFrame）
     # new_df = new_df.rename(columns={'orderid': 'name', 'userid': 'value'})
     df['start_time'] = pd.to_datetime(df['start_time'])
@@ -89,7 +91,6 @@ def visualone():
 @app.route('/api/Visualtwo', methods=['GET'])
 def visualtwo():
     print("收到数据请求")
-    db = DBcontroller.Database()
     df = db.select('bikemessage')   # 调用查询方法获取数据（返回一个DataFrame）
     df['start_time'] = pd.to_datetime(df['start_time'])
     df['hour'] = df['start_time'].dt.hour
@@ -114,8 +115,81 @@ def visualtwo():
     return jsonify(data)
 
 
+@app.route('/api/getUsers', methods=['GET'])
+def users():
+    print("收到用户数据请求")
+    df = db.select('usermessage')   # 取得dataframe数据
+    df = df.rename(columns={'user_name': 'username', 'user_password': 'password', 'user_class': 'typology'})
+    data = df.to_dict(orient='records')
+    print(data)
+    return jsonify(data)
+
+
+@app.route('/api/deleteRow', methods=['POST'])
+def delete():
+    print("收到删除用户数据请求")
+    data_from_frontend = request.get_json()
+    username = data_from_frontend['username']
+    db.delete('usermessage', f"user_name='{username}'")   # 取得dataframe数据
+    result = "deleted"
+    return jsonify(result)
+
+
+@app.route('/api/addRow', methods=['POST'])
+def insert():
+    print("收到添加用户数据请求")
+    data_from_frontend = request.get_json()
+    username = data_from_frontend['name']
+    password = data_from_frontend['password']
+    typology = data_from_frontend['type']
+    result = 'success'
+    try:
+        db.insert('usermessage', (username, password, int(typology)))
+    except Exception as e:  # 捕获到异常，说明出现了主键冲突错误
+        if 'PRIMARY' in str(e):
+            # 处理主键冲突的情况
+            print(f"插入失败，用户名 '{username}' 已存在。")
+            result = 'exist'
+        else:
+            # 处理其他异常
+            print("插入失败，发生未知错误:", e)
+            result = 'failure'
+    print(result)
+    return jsonify(result)
+
+
+@app.route('/api/updateRow', methods=['POST'])
+def update():
+    print("收到更新用户数据请求")
+    data_from_frontend = request.get_json()
+    print(data_from_frontend)
+    username = data_from_frontend['name']
+    password = data_from_frontend['password']
+    typology = data_from_frontend['type']
+    print(username)
+    print(password)
+    print(typology)
+    result = 'success'
+    try:
+        db.update('usermessage', 'user_name', username, f"user_name='{username}'")
+        db.update('usermessage', 'user_password', password, f"user_name='{username}'")
+        db.update('usermessage', 'user_class', int(typology), f"user_name='{username}'")
+    except Exception as e:  # 捕获到异常，说明出现了主键冲突错误
+        if 'PRIMARY' in str(e):
+            # 处理主键冲突的情况
+            print(f"更改失败，用户名 '{username}' 已存在。")
+            result = 'exist'
+        else:
+            # 处理其他异常
+            print("更新失败，发生未知错误:", e)
+            result = 'failure'
+    print(result)
+    return jsonify(result)
+
+
 if __name__ == '__main__':
     app.run()
+
 
 
 
